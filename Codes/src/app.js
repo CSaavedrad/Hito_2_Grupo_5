@@ -10,18 +10,14 @@ const port = 3000;
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-// Endpoint for processing user input
+// Endpoint
 app.post('/process-input', (req, res) => {
     const userInput = req.body.description;
 
-    // Execute the Python script with the user input
-    const pythonProcess = spawn('python', ['scrapePOO.py', userInput]);
+    const pythonProcess = spawn('python', ['Sistema-de-busqueda-POO.py', userInput], { encoding: 'utf8' });
 
     pythonProcess.stdout.on('data', (data) => {
-        // Parse the JSON response
         const jsonOutput = JSON.parse(data.toString());
-        
-        // Send the JSON response
         res.json(jsonOutput);
     });
 });

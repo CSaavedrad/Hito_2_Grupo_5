@@ -5,8 +5,14 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import openai
+import sys
+import json
+
 
 class WebScraper:
+    def __init__(self):
+        self.results = []
+
     def setup_driver(self):
         browser_options = ChromeOptions()
         browser_options.add_argument("--headless=new")
@@ -27,11 +33,12 @@ class WebScraper:
             name_url = a_element.get_attribute('href')
             names = name_url[48:-4].split("-")
             names = " ".join(n.capitalize() for n in names)
-            print("Nombre: " + names)
+            #print("Nombre: " + names)
         except NoSuchElementException:
             try:
                 nickname = self.driver.find_element(By.XPATH, "//span[@id='tutorname' and @class='fs15']")
-                print("Nombre: " + nickname.text)
+                names = nickname.text
+                #print("Nombre: " + names)
             except NoSuchElementException:
                 return
 
@@ -39,22 +46,23 @@ class WebScraper:
             p_element = self.driver.find_element(By.XPATH, "//*[@id='pClasesde']")
             clase = p_element.find_element(By.TAG_NAME, 'b')
             clase_text = clase.text
-            print("Clases de: " + clase_text)
+            #print("Clases de: " + clase_text)
         except NoSuchElementException:
             pass
 
         try:
             en = self.driver.find_element(By.XPATH, "//p[@id='pProvincia' and @class='mgbottom0']")
             en_text = en.text
-            print(en_text)
+            #print(en_text)
         except NoSuchElementException:
-            print("Locación no disponible")
+            #print("Locación no disponible")
+            pass
 
         try:
             div_element = self.driver.find_element(By.ID, 'dvPara')
             para = div_element.find_element(By.XPATH, ".//p[@class='bold']")
             para_text = para.text
-            print("Para: " + para_text)
+            #print("Para: " + para_text)
         except NoSuchElementException:
             pass
 
@@ -62,7 +70,7 @@ class WebScraper:
             div_element = self.driver.find_element(By.ID, 'dvNiveles')
             niv = div_element.find_element(By.XPATH, ".//p[@class='bold']")
             niv_text = niv.text
-            print("Niveles: " + niv_text)
+            #print("Niveles: " + niv_text)
         except NoSuchElementException:
             pass
 
@@ -70,7 +78,7 @@ class WebScraper:
             div_element = self.driver.find_element(By.ID, 'dvMetodos')
             met = div_element.find_element(By.XPATH, ".//p[@class='bold']")
             met_text = met.text
-            print("Métodos: " + met_text)
+            #print("Métodos: " + met_text)
         except NoSuchElementException:
             pass
 
@@ -78,9 +86,10 @@ class WebScraper:
             div_element = self.driver.find_element(By.ID, 'dvPrecio')
             precio = div_element.find_element(By.XPATH, ".//p[@class='bold']")
             precio_text = precio.text
-            print("Precio: " + precio_text)
+            #print("Precio: " + precio_text)
         except NoSuchElementException:
-            print("Precio no disponible")
+            #print("Precio no disponible")
+            pass
 
         try:
             a_element = self.driver.find_element(By.XPATH, "//*[@id='detsubheader']/span/a")
@@ -88,12 +97,44 @@ class WebScraper:
             star_y = a_element.find_elements(By.CSS_SELECTOR, '.spr-com.p_stars.star_y')
             star_m = a_element.find_elements(By.CSS_SELECTOR, '.spr-com.p_stars.star_m')
             rating = len(star_y) + len(star_m) / 2
-            print("Rating de {r} en {n_r} reseñas".format(r=rating, n_r=rating_count))
+            #print("Rating de {r} en {n_r} reseñas".format(r=rating, n_r=rating_count))
         except NoSuchElementException:
-            print("Rating no disponible")
+            #print("Rating no disponible")
+            pass
 
-        print("Contacto a través de: " + url)
-        print("\n")
+        #print("Contacto a través de: " + url)
+
+        data_dict = {}
+
+        if names:
+            data_dict["nombre"] = names
+        if clase_text:
+            data_dict["Clases de"] = clase_text
+        if en_text:
+            data_dict["Locación"] = en_text
+        if para_text:
+            data_dict["Para"] = para_text
+        if niv_text:
+            data_dict["Niveles"] = niv_text
+        if met_text:
+            data_dict["Métodos"] = met_text
+        if precio_text:
+            data_dict["Precio"] = precio_text
+        if rating_count is not None and rating is not None:
+            data_dict["Rating"] = {"valor": rating, "reseñas": rating_count}
+        data_dict["Contacto"] = url
+
+        self.results.append(data_dict)
+
+        #json_output = json.dumps(data_dict, ensure_ascii=False)
+
+        #print(json_output)
+
+        #print("\n")
+
+    def get_results(self):
+    
+        return self.results
 
 class ChatGPT:
     def generate_response(self, description):
@@ -131,7 +172,9 @@ class Busqueda:
         a = [tr.find('a') for tr in column_data[:-1]]
 
         if a == []:
-            print("tusclasesparticulares no ha encontrado profesores con esos criterios.")
+            r = {"message": "tusclasesparticulares no ha encontrado profesores con esos criterios."}
+            json_output = json.dumps(r, ensure_ascii=False)
+            print(json_output)
             return
 
         href = []
@@ -145,23 +188,29 @@ class Busqueda:
     def get_courses(self):
         return self.courses
 
-web_scraper = WebScraper()
 chat_gpt = ChatGPT()
 Resultados_Busqueda = Busqueda()
+web_scraper = WebScraper()
 
-print("Escriba la descripción del curso: ")
-prompt = input()
+#print("Escriba la descripción del curso: ")
+user_input = sys.argv[1]
+prompt = user_input
+
 response = chat_gpt.generate_response(prompt)
-print(response)
+#print(response)
 
 if response == '0':
-    print("ChatGPT no encontró la temática del taller.")
+    r = {"message": "ChatGPT no encontró la temática del taller."}
+    json_output = json.dumps(r, ensure_ascii=False)
+    print(json_output)
     exit()
 
 if response[0] == '1':
     split = response.split("-")
 else:
-    print("ChatGPT no siguió el formato establecido.")
+    r = {"message": "ChatGPT no siguió el formato establecido."}
+    json_output = json.dumps(r, ensure_ascii=False)
+    print(json_output)
     exit()
 
 split = response.split("-")
@@ -173,14 +222,20 @@ if len(split) >= 3:
         url += "%20" + split[i]
         i += 1
 
-print(url)
+#print(url)
 
 Resultados_Busqueda.scrape_courses(url)
 course_urls = Resultados_Busqueda.get_courses()
 
 web_scraper.setup_driver()
 
-for course_url in course_urls:
+#web_scraper.get_data(course_urls[0])
+
+for course_url in course_urls[0:2]:
     web_scraper.get_data(course_url)
+
+results = web_scraper.get_results()
+json_output = json.dumps(results, ensure_ascii=False)
+print(json_output)
 
 web_scraper.close_driver()
