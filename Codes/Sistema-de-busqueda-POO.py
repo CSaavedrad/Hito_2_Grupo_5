@@ -48,15 +48,14 @@ class WebScraper:
             clase_text = clase.text
             #print("Clases de: " + clase_text)
         except NoSuchElementException:
-            pass
+            clase_text = "No disponible"
 
         try:
             en = self.driver.find_element(By.XPATH, "//p[@id='pProvincia' and @class='mgbottom0']")
             en_text = en.text
             #print(en_text)
         except NoSuchElementException:
-            #print("Locación no disponible")
-            pass
+            en_text = "Locación no disponible"
 
         try:
             div_element = self.driver.find_element(By.ID, 'dvPara')
@@ -64,7 +63,7 @@ class WebScraper:
             para_text = para.text
             #print("Para: " + para_text)
         except NoSuchElementException:
-            pass
+            para_text = "No disponible"
 
         try:
             div_element = self.driver.find_element(By.ID, 'dvNiveles')
@@ -72,7 +71,7 @@ class WebScraper:
             niv_text = niv.text
             #print("Niveles: " + niv_text)
         except NoSuchElementException:
-            pass
+            niv_text = "No disponible"
 
         try:
             div_element = self.driver.find_element(By.ID, 'dvMetodos')
@@ -80,7 +79,7 @@ class WebScraper:
             met_text = met.text
             #print("Métodos: " + met_text)
         except NoSuchElementException:
-            pass
+            met_text = "No disponible"
 
         try:
             div_element = self.driver.find_element(By.ID, 'dvPrecio')
@@ -88,8 +87,8 @@ class WebScraper:
             precio_text = precio.text
             #print("Precio: " + precio_text)
         except NoSuchElementException:
-            #print("Precio no disponible")
-            pass
+            precio_text = "Precio no disponible"
+
 
         try:
             a_element = self.driver.find_element(By.XPATH, "//*[@id='detsubheader']/span/a")
@@ -97,31 +96,24 @@ class WebScraper:
             star_y = a_element.find_elements(By.CSS_SELECTOR, '.spr-com.p_stars.star_y')
             star_m = a_element.find_elements(By.CSS_SELECTOR, '.spr-com.p_stars.star_m')
             rating = len(star_y) + len(star_m) / 2
+            rtng = {"valor": rating, "reseñas": rating_count}
             #print("Rating de {r} en {n_r} reseñas".format(r=rating, n_r=rating_count))
         except NoSuchElementException:
             #print("Rating no disponible")
-            pass
+            rtng = "rating no disponible"
 
         #print("Contacto a través de: " + url)
 
         data_dict = {}
 
-        if names:
-            data_dict["nombre"] = names
-        if clase_text:
-            data_dict["Clases de"] = clase_text
-        if en_text:
-            data_dict["Locación"] = en_text
-        if para_text:
-            data_dict["Para"] = para_text
-        if niv_text:
-            data_dict["Niveles"] = niv_text
-        if met_text:
-            data_dict["Métodos"] = met_text
-        if precio_text:
-            data_dict["Precio"] = precio_text
-        if rating_count is not None and rating is not None:
-            data_dict["Rating"] = {"valor": rating, "reseñas": rating_count}
+        data_dict["nombre"] = names
+        data_dict["Clases de"] = clase_text
+        data_dict["Locación"] = en_text
+        data_dict["Para"] = para_text
+        data_dict["Niveles"] = niv_text
+        data_dict["Métodos"] = met_text
+        data_dict["Precio"] = precio_text
+        data_dict["Rating"] = rtng
         data_dict["Contacto"] = url
 
         self.results.append(data_dict)
@@ -131,6 +123,9 @@ class WebScraper:
         #print(json_output)
 
         #print("\n")
+
+    def append_results(self, a):
+        self.results.append(a)
 
     def get_results(self):
     
@@ -222,6 +217,7 @@ if len(split) >= 3:
         url += "%20" + split[i]
         i += 1
 
+web_scraper.append_results(url)
 #print(url)
 
 Resultados_Busqueda.scrape_courses(url)
