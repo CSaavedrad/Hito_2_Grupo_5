@@ -11,7 +11,7 @@ app.use(morgan('dev'));
 app.use(bodyParser.json());
 
 // Endpoint
-app.post('/process-input', (req, res) => {
+app.post('/busqueda', (req, res) => {
     const userInput = req.body.description;
 
     const pythonProcess = spawn('python', ['Sistema-de-busqueda-POO.py', userInput], { encoding: 'utf8' });
@@ -22,7 +22,7 @@ app.post('/process-input', (req, res) => {
     });
 });
 
-// Start the server
+// Server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

@@ -8,7 +8,7 @@ user_description = st.text_input("Escriba la descripción del curso:")
 
 
 if st.button("Obtener resultados"):
-    api_url = "http://localhost:3000/process-input"
+    api_url = "http://localhost:3000/busqueda"
     payload = {"description": user_description}
     response = requests.post(api_url, json=payload)
 
