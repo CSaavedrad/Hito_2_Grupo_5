@@ -208,7 +208,7 @@ course_urls = Resultados_Busqueda.get_courses()
 
 web_scraper.setup_driver()
 
-for course_url in course_urls[0:2]:
+for course_url in course_urls[0:10]:
     web_scraper.get_data(course_url)
 
 results = web_scraper.get_results()
