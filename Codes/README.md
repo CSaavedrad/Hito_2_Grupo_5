@@ -1,4 +1,4 @@
-Es importante instalar las líbrerias necesarias (selenium, beautifulsoup4, request, openai, unicodedata 
+Es importante instalar las librerías necesarias (selenium, beautifulsoup4, request, openai, unicodedata 
 y streamlit), recomendado el uso de pip,
 también es necesario tener instalado google Chrome y seguir los pasos de la documentación de openai.
 https://platform.openai.com/docs/quickstart?context=python
