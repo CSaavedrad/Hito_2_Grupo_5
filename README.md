@@ -5,10 +5,10 @@ Este es el repositorio del grupo 6 , cuyos integrantes son :
 * Ignacio Muñoz Ulloa - Rol 202173096-6
 * **Tutor**: Camila Norambuena
 
-##wiki
+## wiki
 Se puede acceder a la wiki por el siguiente [enlace]()
 
-##Videos
+## Videos
 *[Video presentacion cliente]()
 *[Video avance 1]()
 *[video avance 2]()
