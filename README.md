@@ -9,6 +9,6 @@ Este es el repositorio del grupo 6 , cuyos integrantes son :
 Se puede acceder a la wiki por el siguiente [enlace]()
 
 ## Videos
-*[Video presentacion cliente]()
-*[Video avance 1]()
-*[video avance 2]()
+* [Video presentacion cliente]()
+* [Video avance 1]()
+* [video avance 2]()
