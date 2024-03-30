@@ -10,5 +10,5 @@ Se puede acceder a la wiki por el siguiente [enlace]()
 
 ## Videos
 * [Video presentacion cliente]()
-* [Video avance 1]()
+* [Video avance 1](https://www.youtube.com/watch?v=rnXOH7l1FEc)
 * [video avance 2]()
