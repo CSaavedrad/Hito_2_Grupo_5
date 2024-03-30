@@ -6,7 +6,7 @@ Este es el repositorio del grupo 6 , cuyos integrantes son :
 * **Tutor**: Camila Norambuena
 
 ## wiki
-Se puede acceder a la wiki por el siguiente [enlace]()
+Se puede acceder a la wiki por el siguiente [enlace](https://github.com/CSaavedrad/Hito_2_Grupo_5/wiki)
 
 ## Videos
 * [Video presentacion cliente]()
