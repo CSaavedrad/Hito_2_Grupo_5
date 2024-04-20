@@ -28,89 +28,47 @@ class WebScraper:
     def get_data(self, url):
         if not self.driver:
             self.setup_driver()
-
         self.driver.get(url)
 
         try:
-            a_element = self.driver.find_element(By.XPATH, "//a[@id='alnkname' and @class='detlnkname']")
+            a_element = self.driver.find_element(By.ID, 'lnkProfile')
+            
             name_url = a_element.get_attribute('href')
             names = name_url[48:-4].split("-")
             names = " ".join(n.capitalize() for n in names)
         except NoSuchElementException:
-            try:
-                nickname = self.driver.find_element(By.XPATH, "//span[@id='tutorname' and @class='fs15']")
-                names = nickname.text
-            except NoSuchElementException:
-                return
+            return
 
         try:
-            p_element = self.driver.find_element(By.XPATH, "//*[@id='pClasesde']")
-            clase = p_element.find_element(By.TAG_NAME, 'b')
-            clase_text = clase.text
+            p_element = self.driver.find_element(By.XPATH, '//*[@id="sectionaddetail"]/div[2]/div[2]/div[3]/div[2]/div[3]/span')
+            clase_text = p_element.text
         except NoSuchElementException:
             clase_text = "No disponible"
 
         try:
-            en = self.driver.find_element(By.XPATH, "//p[@id='pProvincia' and @class='mgbottom0']")
+            en = self.driver.find_element(By.XPATH, '//*[@id="line_location"]/span')
             en_text = en.text
         except NoSuchElementException:
             en_text = "Locacion no disponible"
 
         try:
-            div_element = self.driver.find_element(By.ID, 'dvPara')
-            para = div_element.find_element(By.XPATH, ".//p[@class='bold']")
-            para_text = para.text
-        except NoSuchElementException:
-            para_text = "No disponible"
-
-        try:
-            div_element = self.driver.find_element(By.ID, 'dvNiveles')
-            niv = div_element.find_element(By.XPATH, ".//p[@class='bold']")
-            niv_text = niv.text
-        except NoSuchElementException:
-            niv_text = "No disponible"
-
-        try:
-            div_element = self.driver.find_element(By.ID, 'dvMetodos')
-            met = div_element.find_element(By.XPATH, ".//p[@class='bold']")
-            met_text = met.text
-        except NoSuchElementException:
-            met_text = "No disponible"
-
-        try:
-            div_element = self.driver.find_element(By.ID, 'dvPrecio')
-            precio = div_element.find_element(By.XPATH, ".//p[@class='bold']")
-            precio_text = precio.text
+            div_element = self.driver.find_element(By.XPATH, '//*[@id="sectionaddetail"]/div[2]/div[2]/div[3]/div[1]/div[1]/strong/b')
+            precio_text = div_element.text
         except NoSuchElementException:
             precio_text = "Precio no disponible"
-
-
-        try:
-            a_element = self.driver.find_element(By.XPATH, "//*[@id='detsubheader']/span/a")
-            rating_count = int(a_element.find_element(By.CSS_SELECTOR, 'span[itemprop="ratingCount"]').text)
-            star_y = a_element.find_elements(By.CSS_SELECTOR, '.spr-com.p_stars.star_y')
-            star_m = a_element.find_elements(By.CSS_SELECTOR, '.spr-com.p_stars.star_m')
-            rating = len(star_y) + len(star_m) / 2
-            rtng = {"valor": rating, "resenas": rating_count}
-        except NoSuchElementException:
-            rtng = "rating no disponible"
-
 
         data_dict = {}
 
         data_dict["Nombre"] = strip_accents(names)
         data_dict["Clases de"] = strip_accents(clase_text)
         data_dict["Locacion"] = strip_accents(en_text)
-        data_dict["Para"] = strip_accents(para_text)
-        data_dict["Niveles"] = strip_accents(niv_text)
-        data_dict["Metodos"] = strip_accents(met_text)
         data_dict["Precio"] = strip_accents(precio_text)
-        data_dict["Rating"] = rtng
         data_dict["Contacto"] = strip_accents(url)
 
         self.results.append(data_dict)
 
     def append_results(self, a):
+
         self.results.append(a)
 
     def get_results(self):
