@@ -11,6 +11,16 @@ También es necesario node.js y quizás otras cosas que teniamos instaladas de a
 
 Los programas fueron programados y testeados en Python 3.11.2
 
-## Requerimientos a partir de Hito 2 - Ingeniería de Software 2024-1
+## A partir de Hito 2 - Ingeniería de Software 2024-1
+
+### Requisitos:
 
 * Instalar SQlite3: npm install sqlite3
+
+### Cambios en el código:
+
+* La función WebScrapper del sistema de búsqueda fue actualizada para adecuarse a los cambios de formato de la página tusprofesoresparticulares.cl de donde sacamos información
+
+* app.js Ahora crea la base de datos talleres.db en la que se guarda el historial de búsquedas. También gestiona la conexión entre la interfaz y la base de datos con nuevos endpoints.
+
+* Interfaz.py Crea un apartado en la página para que se pueda ver la base de datos. En ese apartado es posible marcar si un tallerista ha sido contactado o no.
