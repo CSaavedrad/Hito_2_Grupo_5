@@ -10,3 +10,7 @@ y "streamlit run Interfaz.py" o "python3 -m streamlit run Interfaz.py" para corr
 También es necesario node.js y quizás otras cosas que teniamos instaladas de antes.
 
 Los programas fueron programados y testeados en Python 3.11.2
+
+## Requerimientos a partir de Hito 2 - Ingeniería de Software 2024-1
+
+* Instalar SQlite3: npm install sqlite3
