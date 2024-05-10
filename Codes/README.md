@@ -16,6 +16,7 @@ Los programas fueron programados y testeados en Python 3.11.2
 ### Requisitos:
 
 * Instalar SQlite3: npm install sqlite3
+* Installar uuidv4: npm install uuidv4
 
 ### Cambios en el código:
 
