@@ -61,12 +61,12 @@ class SearchTests(unittest.TestCase):
         cls.conn.close()
 
 
-    def test_busqueda_endpoint_sin_tematica(self):
+    def test_post_busqueda_notem(self):
         response = requests.post(self.url, json=self.payload_st)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json() == "ChatGPT no encontro la tematica del taller." or response.json() == "ChatGPT no siguio el formato establecido.")
     
-    def test_BusquedaEndpoint(self):
+    def test_post_busqueda(self):
         response = requests.post(self.url, json=self.payload_yoga)
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.json(), list)
