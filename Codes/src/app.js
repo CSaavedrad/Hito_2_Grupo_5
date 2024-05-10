@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import { spawn } from 'child_process';
 import sqlite3 from 'sqlite3';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 const port = 3000;
@@ -22,7 +23,8 @@ db.serialize(() => {
         locacion TEXT,
         precio TEXT,
         contacto TEXT PRIMARY KEY,
-        validado INTEGER DEFAULT 0
+        validado INTEGER DEFAULT 0,
+        propuesta TEXT DEFAULT "Genere un link de contacto"
     )`);
 });
 
@@ -40,54 +42,53 @@ app.post('/busqueda', (req, res) => {
         // Accumulate data until the delimiter is found
         accumulatedData += dataString;
 
-        // Check if the delimiter is present
-        if (dataString.includes('<<end_of_data>>')) {
-            try {
-                // Remove the delimiter and parse JSON
-                const jsonData = JSON.parse(accumulatedData.replace('<<end_of_data>>', ''));
+        try {
+            // Remove the delimiter and parse JSON
+            const jsonData = JSON.parse(accumulatedData.replace('<<end_of_data>>', ''));
+            
 
-                // Verificar si el contacto ya existe en la base de datos
-                db.get('SELECT COUNT(*) AS count FROM talleres WHERE contacto = ?', [jsonData[1].Contacto], (err, row) => {
-                    if (err) {
-                        console.error('Error verificando el contacto en la base de datos:', err);
-                        res.status(500).json({ error: 'Internal Server Error' });
-                        return;
+            // Verificar si el contacto ya existe en la base de datos
+            db.get('SELECT COUNT(*) AS count FROM talleres WHERE contacto = ?', [jsonData[1].Contacto], (err, row) => {
+                if (err) {
+                    console.error('Error verificando el contacto en la base de datos:', err);
+                    res.status(500).json({ error: 'Internal Server Error' });
+                    return;
+                }
+
+                // Si count es mayor que 0, significa que el contacto ya existe en la base de datos
+                if (row.count > 0) {
+                    res.status(400).json({ error: 'El contacto ya está registrado en la base de datos' });
+                    return;
+                }
+
+                // Si count es 0, proceder con la inserción del nuevo registro
+                const stmt = db.prepare('INSERT INTO talleres VALUES (?, ?, ?, ?, ?, ?, ?)');
+                jsonData.forEach((entry) => {
+                    if (typeof entry === 'object') {
+                        const values = [
+                            entry.Nombre,
+                            entry["Clases de"],
+                            entry.Locacion,
+                            entry.Precio,
+                            entry.Contacto,
+                            0,
+                            "Genere un link de contacto"
+                        ];
+                        stmt.run(values);
                     }
-
-                    // Si count es mayor que 0, significa que el contacto ya existe en la base de datos
-                    if (row.count > 0) {
-                        res.status(400).json({ error: 'El contacto ya está registrado en la base de datos' });
-                        return;
-                    }
-
-                    // Si count es 0, proceder con la inserción del nuevo registro
-                    const stmt = db.prepare('INSERT INTO talleres VALUES (?, ?, ?, ?, ?, ?)');
-                    jsonData.forEach((entry) => {
-                        if (typeof entry === 'object') {
-                            const values = [
-                                entry.Nombre,
-                                entry["Clases de"],
-                                entry.Locacion,
-                                entry.Precio,
-                                entry.Contacto,
-                                0
-                            ];
-                            stmt.run(values);
-                        }
-                    });
-                    stmt.finalize();
-
-                    // Enviar los datos al cliente
-                    res.json(jsonData);
                 });
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-                res.status(500).json({ error: 'Internal Server Error' });
-            }
+                stmt.finalize();
 
-            // Reset accumulated data
-            accumulatedData = '';
+                // Enviar los datos al cliente
+                res.json(jsonData);
+            });
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+            res.status(500).json({ error: 'Internal Server Error' });
         }
+
+        // Reset accumulated data
+        accumulatedData = '';
     });
 });
 
@@ -111,6 +112,24 @@ app.post('/marcar_validado', (req, res) => {
     const { contacto, validado } = req.body;
 
     db.run('UPDATE talleres SET validado = ? WHERE contacto = ?', [validado ? 1 : 0, contacto], (err) => {
+        if (err) {
+            console.error('Error al actualizar el estado de validado en la base de datos:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+            return;
+        }
+
+        res.json({ success: true });
+    });
+});
+
+// Nueva ruta para generar un enlace
+app.post('/generar_enlace', (req, res) => {
+
+    const { contacto } = req.body;
+    const token = uuidv4();
+    const enlace = `http://localhost:8501/?token=${token}`;
+
+    db.run('UPDATE talleres SET propuesta = ? WHERE contacto = ?', [enlace, contacto], (err) => {
         if (err) {
             console.error('Error al actualizar el estado de validado en la base de datos:', err);
             res.status(500).json({ error: 'Internal Server Error' });

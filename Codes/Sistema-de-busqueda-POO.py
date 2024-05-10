@@ -84,7 +84,7 @@ class ChatGPT:
             messages=[
                 {"role": "system", "content": """Eres un sistema de búsqueda de profesores para talleres. En base a una descripción del taller
                     tienes que devolver la temática del taller y una ubicación para el taller.
-                    La temática puede ser específica, no generalices tanto.
+                    La temática puede ser específica, no generalices tanto. Por ejemplo en taller de futbol al tematica es futbol, considera que los mensajes no tienen porque tener ese formato.
                     Si la temática es más de una palabra separa cada palabra con '%20'.
                     Si la ubicación es más de una palabra separa cada palabra con '%20'.
                     Retorna '0' si no encontraste la temática del taller y necesitas más información.
