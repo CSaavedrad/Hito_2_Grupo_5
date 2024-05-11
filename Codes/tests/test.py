@@ -37,7 +37,7 @@ class HistoryTests(unittest.TestCase):
         response = requests.get(self.url) 
         self.assertEqual(response.status_code, 200)
         actual_data = response.json()
-        self.assertEqual(actual_data, [])
+        self.assertEqual(actual_data, "El historial esta vacío")
 
 
 class SearchTests(unittest.TestCase):
