@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { json } from 'express';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import { spawn } from 'child_process';
@@ -29,6 +29,7 @@ db.serialize(() => {
 });
 
 // Endpoint
+// Endpoint
 app.post('/busqueda', (req, res) => {
     const userInput = req.body.description;
 
@@ -45,42 +46,45 @@ app.post('/busqueda', (req, res) => {
         try {
             // Remove the delimiter and parse JSON
             const jsonData = JSON.parse(accumulatedData.replace('<<end_of_data>>', ''));
-            
 
-            // Verificar si el contacto ya existe en la base de datos
-            db.get('SELECT COUNT(*) AS count FROM talleres WHERE contacto = ?', [jsonData[1].Contacto], (err, row) => {
-                if (err) {
-                    console.error('Error verificando el contacto en la base de datos:', err);
-                    res.status(500).json({ error: 'Internal Server Error' });
-                    return;
-                }
-
-                // Si count es mayor que 0, significa que el contacto ya existe en la base de datos
-                if (row.count > 0) {
-                    res.status(400).json({ error: 'El contacto ya está registrado en la base de datos' });
-                    return;
-                }
-
-                // Si count es 0, proceder con la inserción del nuevo registro
-                const stmt = db.prepare('INSERT INTO talleres VALUES (?, ?, ?, ?, ?, ?, ?)');
-                jsonData.forEach((entry) => {
-                    if (typeof entry === 'object') {
-                        const values = [
-                            entry.Nombre,
-                            entry["Clases de"],
-                            entry.Locacion,
-                            entry.Precio,
-                            entry.Contacto,
-                            0,
-                            "Genere un link de contacto"
-                        ];
-                        stmt.run(values);
-                    }
-                });
-                stmt.finalize();
-
-                // Enviar los datos al cliente
+            if (jsonData.message) {
                 res.json(jsonData);
+                return;
+            }
+
+            // Preparar la sentencia REPLACE INTO
+            const stmt = db.prepare('REPLACE INTO talleres (nombre, clases_de, locacion, precio, contacto, validado, propuesta) VALUES (?, ?, ?, ?, ?, ?, ?)');
+
+            // Ejecutar la inserción/reemplazo para cada entrada en jsonData
+            jsonData.forEach((entry) => {
+                if (typeof entry === 'object') {
+                    const values = [
+                        entry.Nombre,
+                        entry["Clases de"],
+                        entry.Locacion,
+                        entry.Precio,
+                        entry.Contacto,
+                        0,
+                        "Genere un link de contacto"
+                    ];
+                    stmt.run(values, (err) => {
+                        if (err) {
+                            console.error('Error insertando el registro en la base de datos:', err);
+                            res.status(500).json({ error: 'Internal Server Error' });
+                            return;
+                        }
+                    });
+                }
+            });
+
+            stmt.finalize((err) => {
+                if (err) {
+                    console.error('Error finalizando la sentencia:', err);
+                    res.status(500).json({ error: 'Internal Server Error' });
+                } else {
+                    // Enviar los datos al cliente
+                    res.json(jsonData);
+                }
             });
         } catch (error) {
             console.error('Error parsing JSON:', error);
@@ -92,6 +96,7 @@ app.post('/busqueda', (req, res) => {
     });
 });
 
+
 // Agregar una nueva ruta para mostrar el historial
 app.get('/historial', (req, res) => {
     // Realizar una consulta a la base de datos para obtener todos los registros
@@ -99,6 +104,11 @@ app.get('/historial', (req, res) => {
         if (err) {
             console.error('Error al obtener los datos de la base de datos:', err);
             res.status(500).json({ error: 'Internal Server Error' });
+            return;
+        }
+
+        if(rows.length === 0){
+            res.json("El historial está vacío");
             return;
         }
 

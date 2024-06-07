@@ -23,7 +23,10 @@ else:
 
             if response.status_code == 200:
                 result_json = response.json()
-                st.json(result_json)
+                for entry in result_json[1:]:
+                    for key, value in entry.items():
+                                st.write(f"{key}: {value}")
+                    st.write("---")
             else:
                 st.error(f"Error: {response.status_code} - {response.text}")
 
@@ -34,36 +37,41 @@ else:
 
         if db_response.status_code == 200:
             db_data = db_response.json()
-            for entry in db_data:
-                if isinstance(entry, dict):
-                    # Mostrar cada entrada como un diccionario con sus claves y valores
-                    for key, value in entry.items():
-                        st.write(f"{key}: {value}")
-                    # Obtener el estado de "validado" de la entrada de la base de datos
-                    validado = entry.get("validado", False)
-                    # Agregar una checkmark para cada entrada de la base de datos
-                    nuevo_estado = st.checkbox(label="Validar contacto", value=validado, key=entry["contacto"])
-                    if nuevo_estado != validado:
-                        # Actualizar el estado de "validado" en el servidor
-                        update_url = "http://localhost:3000/marcar_validado"
-                        update_payload = {"contacto": entry["contacto"], "validado": nuevo_estado}
-                        update_response = requests.post(update_url, json=update_payload)
-                        if update_response.status_code == 200:
-                            st.write("Estado de 'validado' actualizado con éxito")
-                        else:
-                            st.error(f"Error al actualizar el estado de 'validado': {update_response.status_code}")
-                        st.rerun()
-                    generar_enlace = st.button("Generar Enlace para Subir Propuesta", key=(entry["contacto"]+"2"))
-                    if generar_enlace:
-                        api_url = f"http://localhost:3000/generar_enlace"
-                        enlace_payload = {"contacto": entry["contacto"]}
-                        response = requests.post(api_url, json = enlace_payload)
-                        if response.status_code == 200:
-                            st.write("Estado de 'propuesta' actualizado con éxito")
-                        else:
-                            st.error(f"Error: {response.status_code} - {response.text}")
-                        st.rerun()
-                st.write("---")
+            if db_data == "El historial está vacío":
+                st.write(db_data)
+            else:
+                for entry in db_data:
+                    if isinstance(entry, dict):
+                        # Mostrar cada entrada como un diccionario con sus claves y valores
+                        for key, value in entry.items():
+                            if key == "validado":
+                                continue
+                            st.write(f"{key.replace('_', ' ').capitalize()}: {value}")
+                        # Obtener el estado de "validado" de la entrada de la base de datos
+                        validado = entry.get("validado", False)
+                        # Agregar una checkmark para cada entrada de la base de datos
+                        nuevo_estado = st.checkbox(label="Validar contacto", value=validado, key=entry["contacto"])
+                        if nuevo_estado != validado:
+                            # Actualizar el estado de "validado" en el servidor
+                            update_url = "http://localhost:3000/marcar_validado"
+                            update_payload = {"contacto": entry["contacto"], "validado": nuevo_estado}
+                            update_response = requests.post(update_url, json=update_payload)
+                            if update_response.status_code == 200:
+                                st.write("Estado de 'validado' actualizado con éxito")
+                            else:
+                                st.error(f"Error al actualizar el estado de 'validado': {update_response.status_code}")
+                            st.rerun()
+                        generar_enlace = st.button("Generar Enlace para Subir Propuesta", key=(entry["contacto"]+"2"))
+                        if generar_enlace:
+                            api_url = f"http://localhost:3000/generar_enlace"
+                            enlace_payload = {"contacto": entry["contacto"]}
+                            response = requests.post(api_url, json = enlace_payload)
+                            if response.status_code == 200:
+                                st.write("Estado de 'propuesta' actualizado con éxito")
+                            else:
+                                st.error(f"Error: {response.status_code} - {response.text}")
+                            st.rerun()
+                    st.write("---")
         else:
             st.error(f"Error: {db_response.status_code} - {db_response.text}")
 
