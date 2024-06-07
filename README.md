@@ -12,4 +12,4 @@ Se puede acceder a la wiki por el siguiente [enlace](https://github.com/CSaavedr
 ## Videos
 * [Video avance 1](https://www.youtube.com/watch?v=rnXOH7l1FEc)
 * [Video avance 2](https://www.youtube.com/watch?v=rj6OdYoBbqU)
-
+* [Video Hito 4 Ing. de Software](https://youtu.be/WLEnrvSjvAk)
