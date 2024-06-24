@@ -63,7 +63,7 @@ else:
                             st.rerun()
                         generar_enlace = st.button("Generar Enlace para Subir Propuesta", key=(entry["contacto"]+"2"))
                         if generar_enlace:
-                            api_url = f"http://localhost:3000/generar_enlace"
+                            api_url = "http://localhost:3000/generar_enlace"
                             enlace_payload = {"contacto": entry["contacto"]}
                             response = requests.post(api_url, json = enlace_payload)
                             if response.status_code == 200:

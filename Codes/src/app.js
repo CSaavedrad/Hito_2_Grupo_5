@@ -1,4 +1,3 @@
-import express, { json } from 'express';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import { spawn } from 'child_process';
@@ -71,7 +70,6 @@ app.post('/busqueda', (req, res) => {
                         if (err) {
                             console.error('Error insertando el registro en la base de datos:', err);
                             res.status(500).json({ error: 'Internal Server Error' });
-                            return;
                         }
                     });
                 }
